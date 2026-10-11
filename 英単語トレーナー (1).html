@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>英単語トレーナー</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1d2433;--sub:#667085;--pri:#4f46e5;--priT:#fff;--ok:#16a34a;--ng:#dc2626;--bd:#e3e6ee;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1b1f2b;--text:#e8eaf2;--sub:#98a2b3;--pri:#818cf8;--priT:#12141c;--bd:#2c3242}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1b1f2b;--text:#e8eaf2;--sub:#98a2b3;--pri:#818cf8;--priT:#12141c;--bd:#2c3242}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:4px 0 12px}
+nav{display:flex;gap:6px;margin-bottom:16px}
+nav button{flex:1;padding:10px 4px;border:1px solid var(--bd);background:var(--card);color:var(--sub);border-radius:10px;font-size:14px;cursor:pointer}
+nav button.on{background:var(--pri);color:var(--priT);border-color:var(--pri);font-weight:600}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:20px}
+.fc{min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;user-select:none}
+.fc .w{font-size:34px;font-weight:700;word-break:break-word}
+.fc .m{font-size:22px}
+.hint{color:var(--sub);font-size:13px;margin-top:10px}
+.row{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;padding:12px;border:1px solid var(--bd);background:var(--card);color:var(--text);border-radius:10px;font-size:15px;cursor:pointer}
+.btn.pri{background:var(--pri);color:var(--priT);border-color:var(--pri);font-weight:600}
+.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn.ng{background:var(--ng);color:#fff;border-color:var(--ng)}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 15%,var(--card))}
+.opt.wrong{border-color:var(--ng);background:color-mix(in srgb,var(--ng) 15%,var(--card))}
+.opts{display:grid;gap:8px;margin-top:14px}
+.opt{text-align:left}
+.q{font-size:30px;font-weight:700;text-align:center;margin:8px 0}
+.box{font-size:12px;color:var(--sub)}
+input{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--text);font-size:15px;margin-top:8px}
+ul{list-style:none;padding:0;margin:14px 0 0}
+li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+li div{flex:1;min-width:0}
+li b{display:block}
+li span{color:var(--sub);font-size:14px}
+.del{background:none;border:none;color:var(--ng);font-size:18px;cursor:pointer}
+.bar{display:flex;align-items:center;gap:10px;margin:10px 0;font-size:14px}
+.bar i{display:block;height:14px;border-radius:7px;background:var(--pri);min-width:2px}
+.bar .t{flex:1;background:var(--bd);border-radius:7px;height:14px}
+.bar .l{width:92px;color:var(--sub)}
+.big{font-size:36px;font-weight:700}
+nav{overflow-x:auto}
+nav button{font-size:13px;padding:10px 12px;flex:1 0 auto;white-space:nowrap}
+.res,.dex{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px;margin-top:12px}
+.g{border:2px solid var(--bd);border-radius:12px;padding:8px;font-size:13px;display:flex;flex-direction:column;word-break:break-word}
+.g b{font-size:15px}.g span{color:var(--sub);font-size:12px}
+.g i{font-style:normal;font-size:11px;font-weight:700;margin-top:2px}
+.g.N{border-color:#94a3b8}.g.R{border-color:#3b82f6}
+.g.S{border-color:#f59e0b;background:color-mix(in srgb,#f59e0b 14%,var(--card))}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{padding:8px 12px;border:1px solid var(--bd);background:var(--bg);color:var(--sub);border-radius:20px;font-size:13px;cursor:pointer}
+.chip.pre{border-color:#f59e0b}
+.stile{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.stile div{background:var(--bg);border-radius:10px;padding:10px;text-align:center}
+.stile b{font-size:22px;display:block}
+.stile span{font-size:12px;color:var(--sub)}
+.chip.on{background:var(--pri);color:var(--priT);border-color:var(--pri);font-weight:600}
+.hud{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:14px}
+.hud .lv{background:var(--pri);color:var(--priT);border-radius:10px;padding:4px 10px;font-weight:700}
+.hud .xp{flex:1}
+.hud .t{height:10px;background:var(--bd);border-radius:5px;overflow:hidden}
+.hud .t i{display:block;height:100%;background:var(--pri);transition:width .3s}
+.hud small{color:var(--sub);font-size:11px}
+.toast{margin-top:12px;padding:10px;border-radius:10px;background:color-mix(in srgb,var(--ok) 15%,var(--card));text-align:center;font-weight:600;font-size:14px}
+.chk{display:flex;gap:10px;align-items:center}
+.chk input{width:auto;margin:0}
+select{width:100%;padding:11px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--text);font-size:15px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>📚 英単語トレーナー</h1>
+<div class="hud" id="hud"></div>
+<nav id="nav"></nav>
+<div id="app"></div>
+</div>
+<script>
+const K="vocab_v1";
+const DEFAULT=[["abandon","捨てる、見捨てる"],["achieve","達成する"],["adapt","適応する"],["ambiguous","あいまいな"],["anxious","心配な、切望して"],["approach","近づく、取り組み方"],["benefit","利益、恩恵"],["brief","簡潔な"],["capable","能力のある"],["conclude","結論づける"],["consequence","結果、影響"],["contribute","貢献する"],["decline","減少する、断る"],["demand","要求、需要"],["emphasize","強調する"],["essential","不可欠な"],["evidence","証拠"],["fundamental","基本的な"],["generate","生み出す"],["hesitate","ためらう"],["implement","実行する"],["inevitable","避けられない"],["maintain","維持する"],["negotiate","交渉する"],["obvious","明らかな"],["overcome","克服する"],["persuade","説得する"],["reluctant","気が進まない"],["significant","重要な、著しい"],["sustain","持続させる"]];
+let words=load(),tab="study",cur=null,flip=false,quiz=null,score={c:0,t:0},gain="",cands=[],scanMsg="",scanLvl="all";
+const PK="vocab_profile_v1";
+let prof=(()=>{try{const p=JSON.parse(localStorage.getItem(PK));if(p&&typeof p.xp==="number")return p}catch(e){}return{xp:0,coins:0,combo:0}})();
+function saveProf(){try{localStorage.setItem(PK,JSON.stringify(prof))}catch(e){}}
+const lvOf=x=>Math.floor(Math.sqrt(x/40))+1;
+const GK="vocab_gacha_v1",REF={N:3,R:8,S:20};
+const CATS=[
+{id:"biz",ic:"💼",n:"ビジネス",N:"agenda:議題,budget:予算,deadline:締め切り,invoice:請求書,revenue:収益,colleague:同僚,client:顧客",R:"collaborate:協力する,proposal:提案、企画,merger:合併",S:"leverage:活用する,stakeholder:利害関係者"},
+{id:"sci",ic:"🔬",n:"学術・科学",N:"analyze:分析する,experiment:実験,hypothesis:仮説,observe:観察する,research:研究,theory:理論,method:方法",R:"correlation:相関,empirical:実証的な,phenomenon:現象",S:"ubiquitous:どこにでもある,paradigm:模範、枠組み"},
+{id:"trv",ic:"✈️",n:"旅行・日常",N:"luggage:荷物,reserve:予約する,passport:パスポート,departure:出発,arrival:到着,souvenir:お土産,destination:目的地",R:"itinerary:旅程,accommodation:宿泊施設,customs:税関",S:"serendipity:思いがけない幸運,wanderlust:旅への強い憧れ"},
+{id:"emo",ic:"💬",n:"感情・性格",N:"cheerful:陽気な,honest:正直な,jealous:嫉妬深い,nervous:緊張した,polite:礼儀正しい,stubborn:頑固な,grateful:感謝している",R:"sincere:誠実な,arrogant:傲慢な,compassion:思いやり",S:"ambivalent:相反する感情を抱く,melancholy:憂うつ"},
+{id:"soc",ic:"🌍",n:"社会・ニュース",N:"government:政府,economy:経済,environment:環境,population:人口,society:社会,policy:政策,election:選挙",R:"inflation:インフレ,sustainable:持続可能な,legislation:法律、立法",S:"sovereignty:主権,humanitarian:人道的な"}
+];
+const POOL=CATS.flatMap(c=>["N","R","S"].flatMap(r=>c[r].split(",").map(t=>{const[w,m]=t.split(":");return{w,m,r,c:c.id}})));
+let gcat="biz";
+const gpool=()=>gcat==="pre"?POOL.filter(p=>p.r!=="N"):POOL.filter(p=>p.c===gcat);
+const costOf=n=>gcat==="pre"?(n===1?100:900):(n===1?30:270);
+const gname=()=>gcat==="pre"?"プレミアム":CATS.find(c=>c.id===gcat).n;
+let gz=(()=>{try{const g=JSON.parse(localStorage.getItem(GK));if(g&&Array.isArray(g.owned))return g}catch(e){}return{owned:[],pulls:0}})(),pulled=[],dexMsg="";
+let sfxOn=(()=>{try{return localStorage.getItem("vocab_sfx")!=="0"}catch(e){return true}})(),AC=null;
+function tone(f,t,d,type="sine",v=.15){
+  if(!sfxOn)return;
+  try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();
+    const o=AC.createOscillator(),g=AC.createGain(),s=AC.currentTime+t;
+    o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,s);g.gain.exponentialRampToValueAtTime(.001,s+d);
+    o.connect(g);g.connect(AC.destination);o.start(s);o.stop(s+d)}catch(e){}
+}
+const SFX={
+  ok:()=>{tone(660,0,.12);tone(880,.1,.2)},
+  ng:()=>{tone(220,0,.18,"sawtooth",.08);tone(165,.15,.25,"sawtooth",.08)},
+  flip:()=>tone(500,0,.07,"triangle",.1),
+  up:()=>[523,659,784,1047].forEach((f,i)=>tone(f,i*.1,.3,"triangle")),
+  N:()=>tone(440,0,.15),
+  R:()=>{tone(523,0,.12);tone(784,.1,.25)},
+  S:()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,i*.09,.4,"triangle",.18))
+};
+function sfx(n){SFX[n]&&SFX[n]()}
+function toggleSfx(){sfxOn=!sfxOn;try{localStorage.setItem("vocab_sfx",sfxOn?"1":"0")}catch(e){}sfx("flip");hud()}
+function saveGz(){try{localStorage.setItem(GK,JSON.stringify(gz))}catch(e){}}
+function pullOne(fs){
+  const x=Math.random(),pr=gcat==="pre",r=fs?"S":pr?(x<.3?"S":"R"):x<.05?"S":x<.30?"R":"N",has=p=>gz.owned.includes(p.w);
+  const cp=gpool(),tier=cp.filter(p=>p.r===r);
+  let c=tier.filter(p=>!has(p));
+  if(!c.length)c=cp.filter(p=>!has(p));
+  if(!c.length)c=tier;
+  const p=c[Math.floor(Math.random()*c.length)],isNew=!has(p);
+  if(isNew){gz.owned.push(p.w);if(!words.some(y=>y.w.toLowerCase()===p.w))words.push({w:p.w,m:p.m,box:1})}else prof.coins+=REF[p.r];
+  return{...p,isNew};
+}
+function draw(n){
+  const cost=costOf(n);if(prof.coins<cost)return;
+  prof.coins-=cost;pulled=[];dexMsg="";
+  for(let i=0;i<n;i++)pulled.push(pullOne(gcat==="pre"&&n===10&&i===9&&!pulled.some(q=>q.r==="S")));
+  gz.pulls+=n;sfx(pulled.some(p=>p.r==="S")?"S":pulled.some(p=>p.r==="R")?"R":"N");
+  gz.cd=gz.cd||{};if(gpool().every(p=>gz.owned.includes(p.w))&&!gz.cd[gcat]){gz.cd[gcat]=1;const bn=gcat==="pre"?300:100;prof.coins+=bn;dexMsg="🎊 「"+gname()+"」コンプリート！ボーナス 🪙"+bn}
+  save();saveGz();saveProf();hud();rDex();
+}
+function hud(){const L=lvOf(prof.xp),a=40*(L-1)**2,b=40*L*L;
+  $("hud").innerHTML=`<span class="lv">Lv ${L}</span><div class="xp"><div class="t"><i style="width:${(prof.xp-a)/(b-a)*100}%"></i></div><small>${prof.xp-a} / ${b-a} XP</small></div><span>🪙 ${prof.coins}</span><button class="del" style="color:var(--text)" onclick="toggleSfx()" aria-label="効果音の切り替え">${sfxOn?"🔊":"🔇"}</button>`}
+function load(){try{const s=localStorage.getItem(K);if(s){const a=JSON.parse(s);if(Array.isArray(a)&&a.length)return a}}catch(e){}return DEFAULT.map(([w,m])=>({w,m,box:1}))}
+function save(){try{localStorage.setItem(K,JSON.stringify(words))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="en-US";speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function pick(excl){ // 低いボックスほど出やすい
+  const pool=words.map((x,i)=>({i,wt:6-x.box})).filter(o=>o.i!==excl||words.length<2);
+  let r=Math.random()*pool.reduce((a,o)=>a+o.wt,0);
+  for(const o of pool){r-=o.wt;if(r<=0)return o.i}
+  return pool[0].i;
+}
+function grade(i,ok){words[i].box=ok?Math.min(5,words[i].box+1):1;save()}
+function setTab(t){tab=t;cur=null;quiz=null;pulled=[];dexMsg="";render()}
+function render(){hud();
+  $("nav").innerHTML=[["study","学習"],["quiz","クイズ"],["list","単語帳"],["scan","📷スキャン"],["dex","🎰ガチャ"],["stats","進捗"]]
+    .map(([k,l])=>`<button class="${tab===k?"on":""}" onclick="setTab('${k}')">${l}</button>`).join("");
+  ({study:rStudy,quiz:rQuiz,list:rList,scan:rScan,dex:rDex,stats:rStats})[tab]();
+}
+function rStudy(){
+  if(cur===null){cur=pick(-1);flip=false}
+  const x=words[cur];
+  $("app").innerHTML=`<div class="card fc" onclick="flip=!flip;sfx('flip');rStudy()">
+    ${flip?`<div class="m">${esc(x.m)}</div>`:`<div class="w">${esc(x.w)}</div><div class="hint">タップして意味を表示</div>`}
+    <div class="box" style="margin-top:14px">レベル ${x.box}/5</div></div>
+    <div class="row"><button class="btn" onclick="speak(words[cur].w)">🔊 発音</button></div>
+    <div class="row"><button class="btn ng" onclick="ans(false)">まだ</button><button class="btn ok" onclick="ans(true)">覚えた</button></div>`;
+}
+function ans(ok){sfx(ok?"ok":"flip");grade(cur,ok);cur=pick(cur);flip=false;rStudy()}
+function rQuiz(){
+  if(words.length<4){$("app").innerHTML=`<div class="card">クイズには4語以上が必要です。単語帳から追加してください。</div>`;return}
+  if(!quiz){
+    const i=pick(quiz?quiz.i:-1);
+    const others=words.map((_,k)=>k).filter(k=>k!==i).sort(()=>Math.random()-.5).slice(0,3);
+    quiz={i,opts:[i,...others].sort(()=>Math.random()-.5),sel:null};
+  }
+  const x=words[quiz.i];
+  $("app").innerHTML=`<div class="card"><div class="box">正解 ${score.c} / ${score.t}　🔥コンボ ${prof.combo}</div>
+    <div class="q">${esc(x.w)}</div><div class="row"><button class="btn" onclick="speak(words[quiz.i].w)">🔊 発音</button><button class="btn" ${quiz.sel!==null||prof.coins<10||quiz.hid?"disabled":""} onclick="useHint()">💡ヒント 🪙10</button></div>
+    <div class="opts">${quiz.opts.filter(k=>!(quiz.hid||[]).includes(k)).map(k=>{
+      let c="";if(quiz.sel!==null){if(k===quiz.i)c="right";else if(k===quiz.sel)c="wrong"}
+      return `<button class="btn opt ${c}" ${quiz.sel!==null?"disabled":""} onclick="choose(${k})">${esc(words[k].m)}</button>`}).join("")}</div>
+    ${quiz.sel!==null?`<div class="toast">${gain}</div><div class="row"><button class="btn pri" onclick="quiz=null;rQuiz()">次の問題 →</button></div>`:""}</div>`;
+}
+function choose(k){
+  if(quiz.sel!==null)return;
+  quiz.sel=k;const ok=k===quiz.i;score.t++;grade(quiz.i,ok);
+  if(ok){score.c++;prof.combo++;const bonus=prof.combo%5===0,xp=10+Math.min(prof.combo-1,5)*2,co=5+(bonus?10:0),L0=lvOf(prof.xp);
+    prof.xp+=xp;prof.coins+=co;sfx("ok");gain=`+${xp} XP　+🪙${co}`+(bonus?"　🔥5コンボボーナス!":"");
+    if(lvOf(prof.xp)>L0){prof.coins+=50;setTimeout(()=>sfx("up"),250);gain+=`　🎉レベルアップ! Lv${lvOf(prof.xp)} (+🪙50)`}}
+  else{prof.combo=0;sfx("ng");gain="残念… コンボがリセットされました"}
+  saveProf();hud();rQuiz();
+}
+function useHint(){if(!quiz||quiz.sel!==null||quiz.hid||prof.coins<10)return;prof.coins-=10;quiz.hid=quiz.opts.filter(k=>k!==quiz.i).slice(0,2);saveProf();hud();rQuiz()}
+function rScan(){
+  $("app").innerHTML=`<div class="card"><b>画像から単語を追加</b>
+    <div class="hint">教科書・プリント・記事などの画像をアップロードすると、Claudeが英単語を抽出します。</div>
+    <select onchange="scanLvl=this.value"><option value="all" ${scanLvl==="all"?"selected":""}>学習価値のある単語すべて</option><option value="mid" ${scanLvl==="mid"?"selected":""}>中級以上の単語のみ</option></select>
+    <input type="file" accept="image/*" onchange="scanFile(this)">
+    <div class="hint">${esc(scanMsg)}</div>
+    ${cands.length?`<ul>${cands.map((c,i)=>`<li><label class="chk" style="flex:1"><input type="checkbox" ${c.on?"checked":""} onchange="cands[${i}].on=this.checked"><div><b>${esc(c.w)}</b><span>${esc(c.m)}</span></div></label></li>`).join("")}</ul><div class="row"><button class="btn pri" onclick="addCands()">選択した単語を追加</button></div>`:""}</div>`;
+}
+async function scanFile(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const done=m=>{scanMsg=m;if(tab==="scan")rScan()};
+  cands=[];done("読み取り中…（数秒かかります）");
+  try{
+    const sample=await claude.use("sample");
+    if(!sample)return done("この環境ではスキャン機能を利用できません。");
+    let lim={};try{lim=await sample.limits()}catch(e){}
+    if(lim&&lim.images===false)return done("画像の読み取りが許可されていません。");
+    const prompt=`添付画像に写っている英語テキストから、英単語学習用の単語を抽出してください。
+条件: ${scanLvl==="all"?"基本語を除く、学習価値のある単語":"中級以上（英検2級・TOEIC600点以上が目安）の単語のみ"}を最大20語。動詞は原形、名詞は単数形にし、重複は除く。meaningは画像の文脈に合う簡潔な日本語訳。
+出力はJSON配列のみ（前置きやコードブロックは不要）: [{"word":"...","meaning":"..."}]`;
+    const r=await sample.json(prompt,{images:[f],cache:false});
+    const arr=Array.isArray(r)?r:((r&&r.words)||[]);
+    const seen=new Set(words.map(x=>x.w.toLowerCase()));
+    for(const o of arr){const w=String((o&&o.word)||"").trim(),m=String((o&&o.meaning)||"").trim();
+      if(!w||!m||seen.has(w.toLowerCase()))continue;seen.add(w.toLowerCase());cands.push({w,m,on:true})}
+    done(cands.length?`${cands.length}語が見つかりました。追加する単語を選んでください。`:"追加できる新しい単語が見つかりませんでした。");
+  }catch(e){done("読み取りに失敗しました: "+((e&&e.message)||"不明なエラー"))}
+}
+function addCands(){const sel=cands.filter(c=>c.on);sel.forEach(c=>words.push({w:c.w,m:c.m,box:1}));save();cands=[];scanMsg=`${sel.length}語を単語帳に追加しました。`;rScan()}
+function rDex(){
+  const RN={N:"N",R:"R",S:"SR"},pre=gcat==="pre",cat=pre?{ic:"👑",n:"プレミアム"}:CATS.find(c=>c.id===gcat),cp=gpool(),n=cp.filter(p=>gz.owned.includes(p.w)).length,c1=costOf(1),c10=costOf(10);
+  $("app").innerHTML=`<div class="card"><b>🎰 単語ガチャ</b>
+    <div class="chips">${CATS.map(c=>`<button class="chip ${c.id===gcat?"on":""}" onclick="gcat='${c.id}';pulled=[];dexMsg='';rDex()">${c.ic} ${c.n}</button>`).join("")}<button class="chip pre ${pre?"on":""}" onclick="gcat='pre';pulled=[];dexMsg='';rDex()">👑 プレミアム</button></div>
+    <div class="hint">${cat.ic} ${cat.n}ガチャ ─ 獲得済み ${n} / ${cp.length}語。未獲得の単語が出やすく、獲得すると学習・クイズの対象に加わります。${pre?"全分野のR・SR単語から排出。排出率 R 70% / SR 30%、10連はSR1語以上確定。":"排出率 N 70% / R 25% / SR 5%。"}全て揃った後の重複はコインに還元されます。</div>
+    <div class="row"><button class="btn pri" ${prof.coins<c1?"disabled":""} onclick="draw(1)">1回 🪙${c1}</button><button class="btn pri" ${prof.coins<c10?"disabled":""} onclick="draw(10)">10連 🪙${c10}</button></div>
+    ${dexMsg?`<div class="toast">${dexMsg}</div>`:""}
+    ${pulled.length?`<div class="res">${pulled.map(p=>`<div class="g ${p.r}"><b>${esc(p.w)}</b><span>${esc(p.m)}</span><i>${RN[p.r]} ${p.isNew?"NEW":"重複 +🪙"+REF[p.r]}</i></div>`).join("")}</div>`:""}</div>`;
+}
+function sumCard(){
+  const c=l=>words.filter(x=>l.includes(x.box)).length;
+  const t=[["総単語数",words.length],["習得済み (Lv5)",c([5])],["学習中 (Lv2〜4)",c([2,3,4])],["未学習 (Lv1)",c([1])],["ガチャ獲得",gz.owned.length+" / "+POOL.length],["習得率",(words.length?Math.round(c([5])/words.length*100):0)+"%"]];
+  return `<div class="card"><b>📊 単語帳サマリー</b><div class="stile">${t.map(([l,v])=>`<div><b>${v}</b><span>${l}</span></div>`).join("")}</div></div>`;
+}
+function rList(){
+  $("app").innerHTML=`${sumCard()}<div class="card" style="margin-top:12px"><b>単語を追加</b>
+    <input id="nw" placeholder="英単語 (例: reliable)" autocapitalize="none">
+    <input id="nm" placeholder="意味 (例: 信頼できる)">
+    <div class="row"><button class="btn pri" onclick="addWord()">追加</button></div>
+    <ul>${words.map((x,i)=>`<li><div><b>${esc(x.w)}</b><span>${esc(x.m)}</span></div><span class="box">Lv${x.box}</span><button class="del" onclick="delWord(${i})" aria-label="削除">✕</button></li>`).join("")}</ul></div>`;
+}
+function addWord(){
+  const w=$("nw").value.trim(),m=$("nm").value.trim();
+  if(!w||!m)return;
+  words.push({w,m,box:1});save();rList();
+}
+function delWord(i){words.splice(i,1);save();cur=null;quiz=null;rList()}
+function rStats(){
+  const n=words.length,cnt=[1,2,3,4,5].map(b=>words.filter(x=>x.box===b).length);
+  const mastered=cnt[4],pct=n?Math.round(mastered/n*100):0;
+  $("app").innerHTML=`<div class="card"><div class="box">定着度（レベル5の割合）</div><div class="big">${pct}%</div>
+    <div class="box">${mastered} / ${n} 語</div>
+    ${cnt.map((c,i)=>`<div class="bar"><span class="l">レベル ${i+1}</span><span class="t"><i style="width:${n?c/n*100:0}%"></i></span><span>${c}</span></div>`).join("")}
+    <div class="hint">「覚えた」「正解」でレベルUP、間違えるとレベル1に戻り、出題頻度が上がります。</div>
+    <div class="row"><button class="btn" onclick="if(confirm('学習記録と追加した単語をリセットしますか？')){words=DEFAULT.map(([w,m])=>({w,m,box:1}));save();score={c:0,t:0};prof={xp:0,coins:0,combo:0};saveProf();gz={owned:[],pulls:0};saveGz();hud();rStats()}">リセット</button></div></div>`;
+}
+render();
+</script>
+</body>
+</html>
